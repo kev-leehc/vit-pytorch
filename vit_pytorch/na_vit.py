@@ -212,7 +212,8 @@ class NaViT(nn.Module):
         assert divisible_by(image_height, patch_size) and divisible_by(image_width, patch_size), \
             'Image dimensions must be divisible by the patch size.'
 
-        patch_height_dim, patch_width_dim = (image_height // patch_size), (image_width // patch_size)
+        patch_height_dim, patch_width_dim = \
+            (image_height // patch_size), (image_width // patch_size)
         patch_dim = channels * (patch_size ** 2)
 
         self.channels = channels
@@ -256,7 +257,8 @@ class NaViT(nn.Module):
         group_images = False,
         group_max_seq_len = 2048
     ):
-        p, c, device, has_token_dropout = self.patch_size, self.channels, self.device, exists(self.calc_token_dropout)
+        p, c, device, has_token_dropout = \
+            self.patch_size, self.channels, self.device, exists(self.calc_token_dropout)
 
         arange = partial(torch.arange, device = device)
         pad_sequence = partial(orig_pad_sequence, batch_first = True)
