@@ -308,7 +308,8 @@ class NaViT(nn.Module):
                 if has_token_dropout:
                     token_dropout = self.calc_token_dropout(*image_dims)
                     num_keep = max(1, int(seq_len * (1 - token_dropout)))
-                    keep_indices = torch.randn((seq_len,), device = device).topk(num_keep, dim = -1).indices
+                    keep_indices = \
+                        torch.randn((seq_len,), device = device).topk(num_keep, dim = -1).indices
 
                     seq = seq[keep_indices]
                     pos = pos[keep_indices]
@@ -323,17 +324,22 @@ class NaViT(nn.Module):
 
         # derive key padding mask
 
-        lengths = torch.tensor([seq.shape[-2] for seq in batched_sequences], device = device, dtype = torch.long)
+        lengths = torch.tensor(
+            [seq.shape[-2] for seq in batched_sequences], 
+            device = device, 
+            dtype = torch.long)
         max_length = arange(lengths.amax().item())
         key_pad_mask = rearrange(lengths, 'b -> b 1') <= rearrange(max_length, 'n -> 1 n')
 
         # derive attention mask, and combine with key padding mask from above
 
         batched_image_ids = pad_sequence(batched_image_ids)
-        attn_mask = rearrange(batched_image_ids, 'b i -> b 1 i 1') == rearrange(batched_image_ids, 'b j -> b 1 1 j')
+        attn_mask = rearrange(batched_image_ids, 'b i -> b 1 i 1') == \
+            rearrange(batched_image_ids, 'b j -> b 1 1 j')
         attn_mask = attn_mask & rearrange(key_pad_mask, 'b j -> b 1 1 j')
 
-        # combine patched images as well as the patched width / height positions for 2d positional embedding
+        # combine patched images as well as the patched width / height positions 
+        # for 2d positional embedding
 
         patches = pad_sequence(batched_sequences)
         patch_positions = pad_sequence(batched_positions)
@@ -373,7 +379,8 @@ class NaViT(nn.Module):
 
         image_id_arange = arange(max_queries)
 
-        attn_pool_mask = rearrange(image_id_arange, 'i -> i 1') == rearrange(batched_image_ids, 'b j -> b 1 j')
+        attn_pool_mask = rearrange(image_id_arange, 'i -> i 1') == \
+            rearrange(batched_image_ids, 'b j -> b 1 j')
 
         attn_pool_mask = attn_pool_mask & rearrange(key_pad_mask, 'b j -> b 1 j')
 
