@@ -54,7 +54,8 @@ def group_images_by_max_seq_len(
         image_seq_len = (ph * pw)
         image_seq_len = int(image_seq_len * (1 - calc_token_dropout(*image_dims)))
 
-        assert image_seq_len <= max_seq_len, f'image with dimensions {image_dims} exceeds maximum sequence length'
+        assert image_seq_len <= max_seq_len, \
+            f'image with dimensions {image_dims} exceeds maximum sequence length'
 
         if (seq_len + image_seq_len) > max_seq_len:
             groups.append(group)
@@ -81,7 +82,8 @@ class LayerNorm(nn.Module):
     def forward(self, x):
         return F.layer_norm(x, x.shape[-1:], self.gamma, self.beta)
 
-# they use a query-key normalization that is equivalent to rms norm (no mean-centering, learned gamma), from vit 22B paper
+# they use a query-key normalization that is equivalent to 
+# rms norm (no mean-centering, learned gamma), from vit 22B paper
 
 class RMSNorm(nn.Module):
     def __init__(self, heads, dim):
@@ -207,7 +209,8 @@ class NaViT(nn.Module):
 
         # calculate patching related stuff
 
-        assert divisible_by(image_height, patch_size) and divisible_by(image_width, patch_size), 'Image dimensions must be divisible by the patch size.'
+        assert divisible_by(image_height, patch_size) and divisible_by(image_width, patch_size), \
+            'Image dimensions must be divisible by the patch size.'
 
         patch_height_dim, patch_width_dim = (image_height // patch_size), (image_width // patch_size)
         patch_dim = channels * (patch_size ** 2)
@@ -248,7 +251,8 @@ class NaViT(nn.Module):
 
     def forward(
         self,
-        batched_images: Union[List[Tensor], List[List[Tensor]]], # assume different resolution images already grouped correctly
+        # assume different resolution images already grouped correctly
+        batched_images: Union[List[Tensor], List[List[Tensor]]],
         group_images = False,
         group_max_seq_len = 2048
     ):
@@ -284,7 +288,8 @@ class NaViT(nn.Module):
             for image_id, image in enumerate(images):
                 assert image.ndim ==3 and image.shape[0] == c
                 image_dims = image.shape[-2:]
-                assert all([divisible_by(dim, p) for dim in image_dims]), f'height and width {image_dims} of images must be divisible by patch size {p}'
+                assert all([divisible_by(dim, p) for dim in image_dims]), \
+                    f'height and width {image_dims} of images must be divisible by patch size {p}'
 
                 ph, pw = map(lambda dim: dim // p, image_dims)
 
